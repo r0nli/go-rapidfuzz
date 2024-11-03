@@ -1,0 +1,5 @@
+version: '3'
+
+tasks:
+  compile-lib:
+    g++ -std=c++17 -fPIC -shared -o libs/extract_linux_amd64.a extern/wrapper.cpp
