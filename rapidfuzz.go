@@ -2,6 +2,8 @@ package rapidfuzz
 
 /*
 #cgo linux,amd64 LDFLAGS: -L${SRCDIR}/libs -lextract_linux_amd64 -lstdc++ -lm
+#cgo windows,amd64 LDFLAGS: -L${SRCDIR}/libs -lextract_windows_amd64 -lstdc++ -lm
+
 #include <stdlib.h>
 
 // Define the ExtractResult and ExtractResultsArray structs to match C++
