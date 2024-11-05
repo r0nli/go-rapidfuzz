@@ -2,7 +2,13 @@ version: '3'
 
 tasks:
   compile-lib-linux:
-    g++ -std=c++17 -fPIC -shared -o libs/libextract_linux_amd64.a extern/wrapper.cpp
+    cmds: 
+      - mkdir build
+      - g++ -std=c++17 -fPIC -Iinclude -c extern/wrapper.cpp -o build/wrapper.o
+      - ar rcs libs/libextract-linux-amd64.a build/wrapper.o
 
   compile-lib-windows:
-    g++ -std=c++17 -fPIC -shared -Iinclude -o libs/libextract_windows_amd64.a extern/wrapper.cpp
+    cmds:
+      - mkdir build
+      - g++ -std=c++17 -fPIC -Iinclude -c extern/wrapper.cpp -o build/wrapper.o
+      - ar rcs libs/libextract-windows-amd64.a build/wrapper.o

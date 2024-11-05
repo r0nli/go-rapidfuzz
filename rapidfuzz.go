@@ -3,8 +3,8 @@ package rapidfuzz
 /*
 #cgo CFLAGS: -Iinclude
 
-#cgo linux,amd64 LDFLAGS: -L${SRCDIR}/libs -lextract_linux_amd64
-#cgo windows,amd64 LDFLAGS: -L${SRCDIR}/libs -lextract_windows_amd64
+#cgo linux,amd64 LDFLAGS: -L${SRCDIR}/libs -static -lextract-linux-amd64 -lstdc++ -lm
+#cgo windows,amd64 LDFLAGS: -L${SRCDIR}/libs -static -lextract-windows-amd64 -lstdc++ -lm
 
 #include <stdlib.h>
 
