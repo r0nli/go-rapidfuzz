@@ -3,12 +3,12 @@ version: '3'
 tasks:
   compile-lib-linux:
     cmds: 
-      - mkdir build
+      - mkdir -p build
       - g++ -std=c++17 -fPIC -Iinclude -c extern/wrapper.cpp -o build/wrapper.o
       - ar rcs libs/libextract-linux-amd64.a build/wrapper.o
 
   compile-lib-windows:
     cmds:
-      - mkdir build
+      - mkdir -p build
       - x86_64-w64-mingw32-g++ -std=c++17 -fPIC -Iinclude -c extern/wrapper.cpp -o build/wrapper.o
       - x86_64-w64-mingw32-ar rcs libs/libextract-windows-amd64.a build/wrapper.o

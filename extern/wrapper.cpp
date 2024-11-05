@@ -37,26 +37,28 @@ extractOne(const Sentence1 &query, const Iterable &choices, const double score_c
 }
 
 template <typename Sentence1,
-            typename Iterable, typename Sentence2 = typename Iterable::value_type>
-  std::vector<std::pair<Sentence2, double>>
-  extract(const Sentence1 &query, const Iterable &choices, const double score_cutoff = 0.0)
+          typename Iterable, typename Sentence2 = typename Iterable::value_type>
+std::vector<std::tuple<size_t, Sentence2, double>>
+extract(const Sentence1 &query, const Iterable &choices, const double score_cutoff = 0.0)
+{
+  std::vector<std::tuple<size_t, Sentence2, double>> results;
+
+  rapidfuzz::fuzz::CachedRatio<typename Sentence1::value_type> scorer(query);
+
+  size_t index = 0;
+  for (const auto &choice : choices)
   {
-    std::vector<std::pair<Sentence2, double>> results;
+    double score = scorer.similarity(choice, score_cutoff);
 
-    rapidfuzz::fuzz::CachedRatio<typename Sentence1::value_type> scorer(query);
-
-    for (const auto &choice : choices)
+    if (score >= score_cutoff)
     {
-      double score = scorer.similarity(choice, score_cutoff);
-
-      if (score >= score_cutoff)
-      {
-        results.emplace_back(choice, score);
-      }
+      results.emplace_back(index, choice, score);
     }
-
-    return results;
+    ++index;
   }
+
+  return results;
+}
 
 extern "C"
 {
@@ -64,6 +66,7 @@ extern "C"
   // Define a struct for individual match results to be returned to Go
   struct ExtractMatch
   {
+    int index; // Add index of the match
     const char *match;
     double score;
   };
@@ -82,7 +85,6 @@ extern "C"
     double best_score;
     bool found;
   };
-
   // Wrapper for the extractOne function
   ExtractResult extract_one_c(const char *query, const char **choices, int num_choices, double score_cutoff)
   {
@@ -118,8 +120,6 @@ extern "C"
     return output;
   }
 
-  
-
   // New wrapper function for extract, which returns multiple matches
   ExtractResultsArray extract_c(const char *query, const char **choices, int num_choices, double score_cutoff)
   {
@@ -137,11 +137,12 @@ extern "C"
     ExtractMatch *matches = new ExtractMatch[results.size()];
     for (size_t i = 0; i < results.size(); i++)
     {
-      const auto &[choice, score] = results[i];
+      const auto &[index, choice, score] = results[i];
       char *match = new char[choice.size() + 1];
       std::strcpy(match, choice.c_str());
-      matches[i].match = match;
-      matches[i].score = score;
+      matches[i].index = index; // Set the index
+      matches[i].match = match; // Set the matched string
+      matches[i].score = score; // Set the similarity score
     }
 
     // Create and return the array of matches

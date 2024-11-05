@@ -10,6 +10,7 @@ package rapidfuzz
 
 // Define the ExtractResult and ExtractResultsArray structs to match C++
 typedef struct {
+    int index;
     const char* match;
     double score;
 } ExtractMatch;
@@ -26,7 +27,7 @@ typedef struct {
 } ExtractResult;
 
 ExtractResult extract_one_c(const char* query, const char** choices, int num_choices, double score_cutoff);
-ExtractResultsArray extract_c(const char* query, const char** choices, int num_choices, double score_cutoff);
+ExtractResultsArray extract_c(const char *query, const char **choices, int num_choices, double score_cutoff);
 void free_extract_result(ExtractResult result);
 void free_extract_results_array(ExtractResultsArray results);
 */
@@ -36,6 +37,7 @@ import (
 )
 
 type Match struct {
+	Index int
 	Match string
 	Score float64
 }
@@ -87,9 +89,10 @@ func extract(query string, choices []string, scoreCutoff float64) []Match {
 	matches := (*[1 << 30]C.ExtractMatch)(unsafe.Pointer(results.matches))[:results.size:results.size]
 
 	for i := 0; i < int(results.size); i++ {
-		match := C.GoString(matches[i].match)
-		score := float64(matches[i].score)
-		goResults[i] = Match{Match: match, Score: score}
+		index := int(matches[i].index)        // Retrieve the index
+		match := C.GoString(matches[i].match) // Retrieve the match string
+		score := float64(matches[i].score)    // Retrieve the score
+		goResults[i] = Match{Index: index, Match: match, Score: score}
 	}
 
 	return goResults
