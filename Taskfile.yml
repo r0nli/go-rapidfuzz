@@ -2,13 +2,48 @@ version: '3'
 
 tasks:
   compile-lib-linux:
+    desc: "Compile library for Linux AMD64"
     cmds: 
       - mkdir -p build
       - g++ -std=c++17 -fPIC -Iinclude -c extern/wrapper.cpp -o build/wrapper.o
       - ar rcs libs/libextract-linux-amd64.a build/wrapper.o
 
   compile-lib-windows:
+    desc: "Compile library for Windows AMD64. Requires mingw-w64."
     cmds:
       - mkdir -p build
       - x86_64-w64-mingw32-g++ -std=c++17 -fPIC -Iinclude -c extern/wrapper.cpp -o build/wrapper.o
       - x86_64-w64-mingw32-ar rcs libs/libextract-windows-amd64.a build/wrapper.o
+
+  compile-lib-darwin-arm64:
+    desc: "Compile library for ARM Darwin (Apple Silicon). Requires macOS or osxcross toolchain on Linux."
+    cmds:
+      - mkdir -p build
+      - |
+        if command -v clang++ >/dev/null 2>&1; then
+          clang++ -std=c++17 -fPIC -Iinclude -target arm64-apple-macos11 -c extern/wrapper.cpp -o build/wrapper.o
+        elif command -v o64-clang++ >/dev/null 2>&1; then
+          # osxcross toolchain
+          o64-clang++ -std=c++17 -fPIC -Iinclude -c extern/wrapper.cpp -o build/wrapper.o
+        else
+          echo "Error: No suitable compiler found for macOS cross-compilation"
+          echo "Please install clang (on macOS) or osxcross toolchain (on Linux)"
+          exit 1
+        fi
+      - |
+        if command -v ar >/dev/null 2>&1; then
+          ar rcs libs/libextract-darwin-arm64.a build/wrapper.o
+        elif command -v x86_64-apple-darwin-ar >/dev/null 2>&1; then
+          # osxcross archiver
+          x86_64-apple-darwin-ar rcs libs/libextract-darwin-arm64.a build/wrapper.o
+        else
+          echo "Error: No suitable archiver found"
+          exit 1
+        fi
+
+  compile-all:
+    desc: "Compile libraries for all supported platforms"
+    cmds:
+      - task: compile-lib-linux
+      - task: compile-lib-windows
+      - task: compile-lib-darwin-arm64
