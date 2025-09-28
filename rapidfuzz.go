@@ -5,7 +5,7 @@ package rapidfuzz
 
 #cgo linux,amd64 LDFLAGS: -L${SRCDIR}/libs -static -lextract-linux-amd64 -lstdc++ -lm
 #cgo windows,amd64 LDFLAGS: -L${SRCDIR}/libs -static -lextract-windows-amd64 -lstdc++ -lm
-#cgo darwin,arm64 LDFLAGS: -L${SRCDIR}/libs -static -lextract-darwin-arm64 -lstdc++ -lm
+#cgo darwin,arm64 LDFLAGS: -L${SRCDIR}/libs -lextract-darwin-arm64 -lstdc++ -lm
 
 #include <stdlib.h>
 
